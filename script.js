@@ -1,3 +1,4 @@
+// TAILWIND CONFIGURATION
 tailwind.config = {
     theme: {
         extend: {
@@ -21,7 +22,7 @@ tailwind.config = {
             }
         }
     }
-}
+};
 
 // TRANSLATION DICTIONARY
 const translations = {
@@ -881,7 +882,18 @@ let historyLogs = JSON.parse(localStorage.getItem('alhikmah_logs') || '[]');
 let quizCurrentIndex = 0;
 let quizScore = 0;
 
-// INITIALIZATION
+// INITIALIZATION & EVENT LISTENERS
+document.addEventListener('DOMContentLoaded', function() {
+    const langSelect = document.getElementById('langSelect');
+    if (langSelect) {
+        langSelect.addEventListener('change', function(e) {
+            currentLang = e.target.value;
+            updateLanguageUI();
+            logAuditEvent("LANG_CHANGE", `Language changed to ${currentLang.toUpperCase()}`);
+        });
+    }
+});
+
 window.onload = function() {
     updateLanguageUI();
     retrieveKnowledgePair();
@@ -892,12 +904,6 @@ window.onload = function() {
 };
 
 // LANGUAGE SWITCHER
-document.getElementById('langSelect').addEventListener('change', function(e) {
-    currentLang = e.target.value;
-    updateLanguageUI();
-    logAuditEvent("LANG_CHANGE", `Language changed to ${currentLang.toUpperCase()}`);
-});
-
 function updateLanguageUI() {
     const dict = translations[currentLang] || translations.en;
     
