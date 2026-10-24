@@ -463,4 +463,166 @@
             </div>
 
             <div class="p-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
-                <button onclick="printAuditLedger()" class="text-xs bg-slate-800 hover:bg-slate-700 text-white font-medium px-3 py-1.5 rounded-lg transition-colors
+                <button onclick="printAuditLedger()" class="text-xs bg-slate-800 hover:bg-slate-700 text-white font-medium px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-print"></i> <span data-i18n="btnPrintLedger">Print Report</span>
+                </button>
+                <div class="flex items-center gap-2">
+                    <button onclick="clearAuditHistory()" class="text-xs bg-rose-50 hover:bg-rose-100 text-rose-700 font-medium px-3 py-1.5 rounded-lg border border-rose-200 transition-colors" data-i18n="btnClearLogs">Clear Logs</button>
+                    <button onclick="closeHistoryModal()" class="text-xs bg-slate-200 hover:bg-slate-300 text-slate-800 font-medium px-3.5 py-1.5 rounded-lg transition-colors" data-i18n="btnClose">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: KNOWLEDGE QUIZ -->
+    <div id="quizModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
+            <div class="p-4 sm:p-5 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-sm sm:text-base font-serif-title text-emerald-100" data-i18n="quizTitle">Islamic Wisdom & Science Quiz</h3>
+                        <p class="text-[11px] text-slate-400" data-i18n="quizSubtitle">Test your understanding of classical inscriptions.</p>
+                    </div>
+                </div>
+                <button onclick="closeQuizModal()" class="text-slate-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Quiz Questions Container -->
+            <div id="quizContainer" class="p-5 overflow-y-auto flex-1 space-y-4">
+                <div class="flex items-center justify-between text-xs font-semibold text-slate-500 pb-2 border-b border-slate-100">
+                    <span><span data-i18n="quizQuestionCount">Question</span> <span id="quizQuestionNum">1</span> <span data-i18n="quizOf">of</span> <span id="quizTotalNum">3</span></span>
+                    <span class="text-emerald-700"><span data-i18n="quizScore">Score</span>: <span id="quizCurrentScore">0</span></span>
+                </div>
+
+                <p id="quizQuestionText" class="text-xs sm:text-sm font-semibold text-slate-800 leading-relaxed">
+                    Loading question...
+                </p>
+
+                <div id="quizOptions" class="space-y-2 pt-2">
+                    <!-- Dynamic Options -->
+                </div>
+
+                <button id="nextQuizBtn" onclick="nextQuizQuestion()" class="w-full text-xs bg-emerald-700 hover:bg-emerald-800 text-white font-semibold py-2.5 rounded-xl transition-colors hidden mt-4">
+                    <span data-i18n="quizNext">Next Question</span> &rarr;
+                </button>
+            </div>
+
+            <!-- Quiz Results Screen -->
+            <div id="quizResults" class="p-6 text-center space-y-4 hidden">
+                <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto text-2xl">
+                    <i class="fa-solid fa-award"></i>
+                </div>
+                <h4 class="text-base font-bold text-slate-800 font-serif-title" data-i18n="quizResultsTitle">Quiz Completed!</h4>
+                <p class="text-xs text-slate-600"><span data-i18n="quizYourScore">Your Final Score:</span> <span id="quizFinalScore" class="font-bold text-emerald-700 text-sm">0/3</span></p>
+                <p id="quizScoreMsg" class="text-xs italic text-slate-500 max-w-xs mx-auto"></p>
+                
+                <button onclick="restartQuiz()" class="text-xs bg-slate-900 hover:bg-slate-800 text-white font-semibold px-4 py-2 rounded-xl transition-colors" data-i18n="quizRestart">
+                    Restart Quiz
+                </button>
+            </div>
+
+            <div class="p-3.5 bg-slate-50 border-t border-slate-200 text-right">
+                <button onclick="closeQuizModal()" class="text-xs bg-slate-200 hover:bg-slate-300 text-slate-800 font-medium px-3.5 py-1.5 rounded-lg transition-colors" data-i18n="btnClose">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 4: 3-LAYER ARCHITECTURE SPEC -->
+    <div id="archModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
+            <div class="p-4 sm:p-5 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                        <i class="fa-solid fa-layer-group"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-sm sm:text-base font-serif-title text-emerald-100" data-i18n="archTitle">3-Layer Software Architecture Specification</h3>
+                        <p class="text-[11px] text-slate-400" data-i18n="archSubtitle">MGIS130 Enterprise Architecture mapping.</p>
+                    </div>
+                </div>
+                <button onclick="closeArchModal()" class="text-slate-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="p-5 overflow-y-auto flex-1 space-y-4 text-xs">
+                <div class="p-3.5 bg-emerald-50 rounded-xl border border-emerald-200 space-y-1">
+                    <h4 class="font-bold text-emerald-900" data-i18n="archLayer1">Layer 1: User Interface (UI)</h4>
+                    <p class="text-emerald-800 leading-relaxed" data-i18n="archLayer1Desc">Tailwind CSS, Responsive Canvas, Dynamic Themes, Web Speech TTS Synthesis, i18n Localization.</p>
+                </div>
+
+                <div class="p-3.5 bg-amber-50 rounded-xl border border-amber-200 space-y-1">
+                    <h4 class="font-bold text-amber-900" data-i18n="archLayer2">Layer 2: Business Logic & Processing</h4>
+                    <p class="text-amber-800 leading-relaxed" data-i18n="archLayer2Desc">Equilibrium Engine, Contemplation Generator, Isnad Network Graph, Era Chronology Filtering.</p>
+                </div>
+
+                <div class="p-3.5 bg-slate-100 rounded-xl border border-slate-200 space-y-1">
+                    <h4 class="font-bold text-slate-900" data-i18n="archLayer3">Layer 3: Data Access & Persistence</h4>
+                    <p class="text-slate-700 leading-relaxed" data-i18n="archLayer3Desc">Structured Inscriptions & History DB, Session Ledger Audit Hash Verification, Local Favorites Engine.</p>
+                </div>
+            </div>
+
+            <div class="p-3.5 bg-slate-50 border-t border-slate-200 text-right">
+                <button onclick="closeArchModal()" class="text-xs bg-slate-200 hover:bg-slate-300 text-slate-800 font-medium px-3.5 py-1.5 rounded-lg transition-colors" data-i18n="btnClose">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 5: ISNAD CHAIN OF TRANSMISSION -->
+    <div id="isnadModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
+            <div class="p-4 sm:p-5 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center">
+                        <i class="fa-solid fa-diagram-project"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-sm sm:text-base font-serif-title text-amber-100" data-i18n="isnadTitle">Chain of Transmission (Isnad)</h3>
+                        <p class="text-[11px] text-slate-400" data-i18n="isnadSubtitle">Visualizing biographical evaluation (Ilm al-Rijal).</p>
+                    </div>
+                </div>
+                <button onclick="closeIsnadModal()" class="text-slate-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="p-5 overflow-y-auto flex-1 space-y-4">
+                <div class="p-3 bg-amber-50 rounded-xl border border-amber-200 flex items-center justify-between text-xs">
+                    <span class="font-semibold text-amber-900" data-i18n="isnadAuthenticity">Authenticity Grade:</span>
+                    <span class="font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-md" data-i18n="isnadGradeSahih">Sahih (Rigorously Verified)</span>
+                </div>
+
+                <div class="space-y-3 relative pl-4 border-l-2 border-amber-300 text-xs">
+                    <div class="relative">
+                        <div class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-amber-500"></div>
+                        <p class="font-bold text-slate-800">Prophet Muhammad (ﷺ)</p>
+                        <p class="text-[11px] text-slate-500">Primary Divine Source / Preacher</p>
+                    </div>
+                    <div class="relative pt-2">
+                        <div class="absolute -left-[21px] top-3 w-2.5 h-2.5 rounded-full bg-amber-400"></div>
+                        <p class="font-bold text-slate-800">Companion Narrator (Sahabi)</p>
+                        <p class="text-[11px] text-slate-500">Direct Witness & Primary Transmitter</p>
+                    </div>
+                    <div class="relative pt-2">
+                        <div class="absolute -left-[21px] top-3 w-2.5 h-2.5 rounded-full bg-amber-300"></div>
+                        <p class="font-bold text-slate-800">Classical Hadith Compiler</p>
+                        <p class="text-[11px] text-slate-500">Canonical Book Record Verification</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-3.5 bg-slate-50 border-t border-slate-200 text-right">
+                <button onclick="closeIsnadModal()" class="text-xs bg-slate-200 hover:bg-slate-300 text-slate-800 font-medium px-3.5 py-1.5 rounded-lg transition-colors" data-i18n="btnClose">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Logic -->
+    <script src="script.js"></script>
+</body>
+</html>
