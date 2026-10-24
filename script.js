@@ -737,7 +737,7 @@ const translations = {
         lblTotalRetrieved: "کل حاصل کردہ",
         lblTotalSaved: "کل محفوظ شدہ",
         lblActiveTheme: "فعال موڈ",
-        lblSystemStatus: "سستم کی حالت",
+        lblSystemStatus: "سسٹم کی حالت",
         thTimestamp: "وقت",
         thAction: "کارروائی / واقعہ",
         thDomain: "شعبہ",
@@ -1558,30 +1558,62 @@ function printAuditLedger() {
     window.print();
 }
 
-function exportFavoritesCSV() {
-    if (favorites.length === 0) return;
-    let csvContent = "data:text/csv;charset=utf-8,Type,Text,Source,DateSaved\n";
-    favorites.forEach(f => {
-        csvContent += `"${f.type}","${f.text.replace(/"/g, '""')}","${f.source}","${f.dateSaved}"\n`;
-    });
-    const encodedUri = encodeURI(csvContent);
+// UNIVERSAL MOBILE & DESKTOP EXPORT HELPER (Fixes Safari iOS & Mobile Chrome)
+async function downloadOrShareFile(filename, content, mimeType) {
+    if (!content || favorites.length === 0) return;
+
+    const blob = new Blob([content], { type: mimeType });
+    const file = new File([blob], filename, { type: mimeType });
+
+    // 1. MOBILE NATIVE SHARE SHEET (iOS Safari & Android Chrome)
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+            await navigator.share({
+                files: [file],
+                title: filename,
+                text: 'Al-Hikmah Journal Exported Manuscripts'
+            });
+            showToast("Export opened in Share menu!");
+            return;
+        } catch (err) {
+            if (err.name === 'AbortError') return;
+            console.warn("Mobile share failed, falling back to download link:", err);
+        }
+    }
+
+    // 2. DESKTOP / SAFARI FALLBACK DOWNLOAD (PC, Mac, Linux)
+    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "alhikmah_saved_manuscripts.csv");
+    link.href = url;
+    link.download = filename;
+    link.target = "_blank";
+    
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
+    
+    setTimeout(() => {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }, 1000);
 }
 
+// EXPORT FAVORITES AS CSV
+function exportFavoritesCSV() {
+    if (favorites.length === 0) return;
+
+    // UTF-8 BOM (\uFEFF) ensures Arabic text renders properly in Excel & Mobile viewers
+    const csvContent = "\uFEFFType,Text,Source,DateSaved\n" + 
+        favorites.map(f => `"${f.type}","${f.text.replace(/"/g, '""')}","${f.source}","${f.dateSaved}"`).join("\n");
+
+    downloadOrShareFile("alhikmah_saved_manuscripts.csv", csvContent, 'text/csv;charset=utf-8;');
+}
+
+// EXPORT FAVORITES AS JSON
 function exportFavoritesJSON() {
     if (favorites.length === 0) return;
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(favorites, null, 2));
-    const link = document.createElement("a");
-    link.setAttribute("href", dataStr);
-    link.setAttribute("download", "alhikmah_saved_manuscripts.json");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+
+    const jsonStr = JSON.stringify(favorites, null, 2);
+    downloadOrShareFile("alhikmah_saved_manuscripts.json", jsonStr, 'application/json;charset=utf-8;');
 }
 
 // UTILITY TOAST NOTIFICATION
