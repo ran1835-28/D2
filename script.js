@@ -1,30 +1,29 @@
-// TAILWIND CONFIGURATION
-if (typeof tailwind !== 'undefined') {
-    tailwind.config = {
-        theme: {
-            extend: {
-                fontFamily: {
-                    sans: ['Inter', 'sans-serif'],
-                    serif: ['Cinzel', 'Georgia', 'serif'],
-                    amiri: ['Amiri', 'serif'],
-                    scheherazade: ['Scheherazade New', 'serif'],
-                    ruqaa: ['Aref Ruqaa', 'serif'],
+// SAFE TAILWIND CONFIGURATION SETUP
+window.tailwind = window.tailwind || {};
+window.tailwind.config = {
+    theme: {
+        extend: {
+            fontFamily: {
+                sans: ['Inter', 'sans-serif'],
+                serif: ['Cinzel', 'Georgia', 'serif'],
+                amiri: ['Amiri', 'serif'],
+                scheherazade: ['Scheherazade New', 'serif'],
+                ruqaa: ['Aref Ruqaa', 'serif'],
+            },
+            colors: {
+                brand: {
+                    50: '#f0fdf4',
+                    100: '#dcfce7',
+                    500: '#10b981',
+                    700: '#047857',
+                    800: '#065f46',
+                    900: '#064e3b',
                 },
-                colors: {
-                    brand: {
-                        50: '#f0fdf4',
-                        100: '#dcfce7',
-                        500: '#10b981',
-                        700: '#047857',
-                        800: '#065f46',
-                        900: '#064e3b',
-                    },
-                    amberGold: '#d97706',
-                }
+                amberGold: '#d97706',
             }
         }
-    };
-}
+    }
+};
 
 // TRANSLATION DICTIONARY
 const translations = {
@@ -884,25 +883,6 @@ let historyLogs = JSON.parse(localStorage.getItem('alhikmah_logs') || '[]');
 let quizCurrentIndex = 0;
 let quizScore = 0;
 
-// INITIALIZATION & EVENT ATTACHMENTS
-document.addEventListener('DOMContentLoaded', function() {
-    const langSelect = document.getElementById('langSelect');
-    if (langSelect) {
-        langSelect.addEventListener('change', function(e) {
-            currentLang = e.target.value;
-            updateLanguageUI();
-            logAuditEvent("LANG_CHANGE", `Language changed to ${currentLang.toUpperCase()}`);
-        });
-    }
-
-    updateLanguageUI();
-    retrieveKnowledgePair();
-    renderFavoritesList();
-    renderAuditHistory();
-    updateSaveButtonsState();
-    logAuditEvent("SESSION_START", "Application initialized with clean modern UI.");
-});
-
 // LANGUAGE SWITCHER
 function updateLanguageUI() {
     const dict = translations[currentLang] || translations.en;
@@ -941,15 +921,20 @@ function filterEra(era, btn) {
         b.classList.remove('bg-emerald-50', 'text-emerald-800', 'border-emerald-300', 'font-semibold');
         b.classList.add('bg-white', 'text-slate-700', 'border-slate-200');
     });
-    btn.classList.remove('bg-white', 'text-slate-700', 'border-slate-200');
-    btn.classList.add('bg-emerald-50', 'text-emerald-800', 'border-emerald-300', 'font-semibold');
+    if (btn) {
+        btn.classList.remove('bg-white', 'text-slate-700', 'border-slate-200');
+        btn.classList.add('bg-emerald-50', 'text-emerald-800', 'border-emerald-300', 'font-semibold');
+    }
 
     const dict = translations[currentLang] || translations.en;
-    if (era === 'all') {
-        document.getElementById('selectedEraLabel').textContent = dict.selectedEraLabelAll;
-    } else {
-        const eraKey = `era${era === '7' ? '7th' : era === '9' ? '9th' : era === '10' ? '10th' : '11th'}`;
-        document.getElementById('selectedEraLabel').textContent = dict[eraKey] || `${era}th Century Era`;
+    const eraLabel = document.getElementById('selectedEraLabel');
+    if (eraLabel) {
+        if (era === 'all') {
+            eraLabel.textContent = dict.selectedEraLabelAll;
+        } else {
+            const eraKey = `era${era === '7' ? '7th' : era === '9' ? '9th' : era === '10' ? '10th' : '11th'}`;
+            eraLabel.textContent = dict[eraKey] || `${era}th Century Era`;
+        }
     }
 
     retrieveKnowledgePair();
@@ -960,7 +945,6 @@ function retrieveKnowledgePair() {
     const domainSelectEl = document.getElementById('domainSelect');
     const selectedDomain = domainSelectEl ? domainSelectEl.value : 'all';
     
-    // Filter database by selected domain and era
     let filtered = knowledgeDatabase.filter(item => {
         const matchDomain = (selectedDomain === 'all' || item.domain === selectedDomain);
         const matchEra = (currentEra === 'all' || item.era === currentEra);
@@ -972,20 +956,24 @@ function retrieveKnowledgePair() {
         if (filtered.length === 0) filtered = knowledgeDatabase;
     }
 
-    // Select item
     const randomIndex = Math.floor(Math.random() * filtered.length);
     currentPair = filtered[randomIndex];
 
-    // Render to DOM
-    document.getElementById('inscriptionArabic').textContent = currentPair.inscription.arabic;
-    document.getElementById('inscriptionTranslation').textContent = currentPair.inscription.translation;
-    document.getElementById('inscriptionSource').textContent = currentPair.inscription.source;
+    const inscAr = document.getElementById('inscriptionArabic');
+    const inscTr = document.getElementById('inscriptionTranslation');
+    const inscSrc = document.getElementById('inscriptionSource');
+    const obsAr = document.getElementById('observationArabic');
+    const obsTr = document.getElementById('observationTranslation');
+    const obsSrc = document.getElementById('observationSource');
+    const synthPrompt = document.getElementById('synthesisPromptText');
 
-    document.getElementById('observationArabic').textContent = currentPair.observation.arabic;
-    document.getElementById('observationTranslation').textContent = currentPair.observation.translation;
-    document.getElementById('observationSource').textContent = currentPair.observation.source;
-
-    document.getElementById('synthesisPromptText').textContent = currentPair.prompt;
+    if (inscAr) inscAr.textContent = currentPair.inscription.arabic;
+    if (inscTr) inscTr.textContent = currentPair.inscription.translation;
+    if (inscSrc) inscSrc.textContent = currentPair.inscription.source;
+    if (obsAr) obsAr.textContent = currentPair.observation.arabic;
+    if (obsTr) obsTr.textContent = currentPair.observation.translation;
+    if (obsSrc) obsSrc.textContent = currentPair.observation.source;
+    if (synthPrompt) synthPrompt.textContent = currentPair.prompt;
 
     updateEquilibriumBar();
     updateSaveButtonsState();
@@ -994,7 +982,9 @@ function retrieveKnowledgePair() {
 
 // CALLIGRAPHY STYLE ENGINE
 function updateCalligraphyStyle() {
-    const selectedStyle = document.getElementById('scriptSelect').value;
+    const scriptSelectEl = document.getElementById('scriptSelect');
+    if (!scriptSelectEl) return;
+    const selectedStyle = scriptSelectEl.value;
     const inscriptionEl = document.getElementById('inscriptionArabic');
     const observationEl = document.getElementById('observationArabic');
     
@@ -1009,10 +999,15 @@ function updateEquilibriumBar() {
     const abstractPct = 50 + (Math.floor(Math.random() * 11) - 5);
     const concretePct = 100 - abstractPct;
 
-    document.getElementById('abstractPctText').textContent = abstractPct + '%';
-    document.getElementById('concretePctText').textContent = concretePct + '%';
-    document.getElementById('abstractBar').style.width = abstractPct + '%';
-    document.getElementById('concreteBar').style.width = concretePct + '%';
+    const absText = document.getElementById('abstractPctText');
+    const concText = document.getElementById('concretePctText');
+    const absBar = document.getElementById('abstractBar');
+    const concBar = document.getElementById('concreteBar');
+
+    if (absText) absText.textContent = abstractPct + '%';
+    if (concText) concText.textContent = concretePct + '%';
+    if (absBar) absBar.style.width = abstractPct + '%';
+    if (concBar) concBar.style.width = concretePct + '%';
 }
 
 // TEXT TO SPEECH (TTS)
@@ -1038,8 +1033,9 @@ function generateNewSynthesisPrompt() {
 }
 
 function copySynthesisPrompt() {
-    const promptText = document.getElementById('synthesisPromptText').textContent;
-    navigator.clipboard.writeText(promptText).then(() => {
+    const promptTextEl = document.getElementById('synthesisPromptText');
+    if (!promptTextEl) return;
+    navigator.clipboard.writeText(promptTextEl.textContent).then(() => {
         const dict = translations[currentLang] || translations.en;
         showToast(dict.toastCopiedPrompt);
     });
@@ -1170,15 +1166,20 @@ function updateSaveButtonsState() {
 function openQuizModal() {
     quizCurrentIndex = 0;
     quizScore = 0;
-    document.getElementById('quizContainer').classList.remove('hidden');
-    document.getElementById('quizResults').classList.add('hidden');
+    const qCont = document.getElementById('quizContainer');
+    const qRes = document.getElementById('quizResults');
+    const qMod = document.getElementById('quizModal');
+
+    if (qCont) qCont.classList.remove('hidden');
+    if (qRes) qRes.classList.add('hidden');
     renderQuizQuestion();
-    document.getElementById('quizModal').classList.remove('hidden');
+    if (qMod) qMod.classList.remove('hidden');
     logAuditEvent("QUIZ_OPEN", "Started interactive quiz.");
 }
 
 function closeQuizModal() {
-    document.getElementById('quizModal').classList.add('hidden');
+    const qMod = document.getElementById('quizModal');
+    if (qMod) qMod.classList.add('hidden');
 }
 
 function renderQuizQuestion() {
@@ -1188,23 +1189,30 @@ function renderQuizQuestion() {
     }
 
     const q = quizQuestions[quizCurrentIndex];
-    document.getElementById('quizQuestionNum').textContent = quizCurrentIndex + 1;
-    document.getElementById('quizTotalNum').textContent = quizQuestions.length;
-    document.getElementById('quizCurrentScore').textContent = quizScore;
-    document.getElementById('quizQuestionText').textContent = q.question;
+    const qNum = document.getElementById('quizQuestionNum');
+    const qTot = document.getElementById('quizTotalNum');
+    const qCurScore = document.getElementById('quizCurrentScore');
+    const qText = document.getElementById('quizQuestionText');
+
+    if (qNum) qNum.textContent = quizCurrentIndex + 1;
+    if (qTot) qTot.textContent = quizQuestions.length;
+    if (qCurScore) qCurScore.textContent = quizScore;
+    if (qText) qText.textContent = q.question;
 
     const optsContainer = document.getElementById('quizOptions');
-    optsContainer.innerHTML = '';
+    if (optsContainer) {
+        optsContainer.innerHTML = '';
+        q.options.forEach((optText, idx) => {
+            const btn = document.createElement('button');
+            btn.className = "w-full text-left p-3 rounded-xl border border-slate-200 hover:bg-emerald-50 hover:border-emerald-300 transition-all text-xs font-medium text-slate-800 flex items-center justify-between";
+            btn.innerHTML = `<span>${optText}</span><i class="fa-regular fa-circle text-slate-400"></i>`;
+            btn.onclick = () => selectQuizOption(idx);
+            optsContainer.appendChild(btn);
+        });
+    }
 
-    q.options.forEach((optText, idx) => {
-        const btn = document.createElement('button');
-        btn.className = "w-full text-left p-3 rounded-xl border border-slate-200 hover:bg-emerald-50 hover:border-emerald-300 transition-all text-xs font-medium text-slate-800 flex items-center justify-between";
-        btn.innerHTML = `<span>${optText}</span><i class="fa-regular fa-circle text-slate-400"></i>`;
-        btn.onclick = () => selectQuizOption(idx);
-        optsContainer.appendChild(btn);
-    });
-
-    document.getElementById('nextQuizBtn').classList.add('hidden');
+    const nextBtn = document.getElementById('nextQuizBtn');
+    if (nextBtn) nextBtn.classList.add('hidden');
 }
 
 function selectQuizOption(selectedIdx) {
@@ -1212,20 +1220,26 @@ function selectQuizOption(selectedIdx) {
     const isCorrect = selectedIdx === q.answer;
     if (isCorrect) quizScore++;
 
-    const buttons = document.getElementById('quizOptions').querySelectorAll('button');
-    buttons.forEach((btn, idx) => {
-        btn.disabled = true;
-        if (idx === q.answer) {
-            btn.className = "w-full text-left p-3 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-900 font-bold flex items-center justify-between";
-            btn.querySelector('i').className = "fa-solid fa-circle-check text-emerald-600";
-        } else if (idx === selectedIdx) {
-            btn.className = "w-full text-left p-3 rounded-xl border-2 border-rose-400 bg-rose-50 text-rose-900 font-bold flex items-center justify-between";
-            btn.querySelector('i').className = "fa-solid fa-circle-xmark text-rose-500";
-        }
-    });
+    const optsContainer = document.getElementById('quizOptions');
+    if (optsContainer) {
+        const buttons = optsContainer.querySelectorAll('button');
+        buttons.forEach((btn, idx) => {
+            btn.disabled = true;
+            if (idx === q.answer) {
+                btn.className = "w-full text-left p-3 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-900 font-bold flex items-center justify-between";
+                btn.querySelector('i').className = "fa-solid fa-circle-check text-emerald-600";
+            } else if (idx === selectedIdx) {
+                btn.className = "w-full text-left p-3 rounded-xl border-2 border-rose-400 bg-rose-50 text-rose-900 font-bold flex items-center justify-between";
+                btn.querySelector('i').className = "fa-solid fa-circle-xmark text-rose-500";
+            }
+        });
+    }
 
-    document.getElementById('quizCurrentScore').textContent = quizScore;
-    document.getElementById('nextQuizBtn').classList.remove('hidden');
+    const qCurScore = document.getElementById('quizCurrentScore');
+    if (qCurScore) qCurScore.textContent = quizScore;
+
+    const nextBtn = document.getElementById('nextQuizBtn');
+    if (nextBtn) nextBtn.classList.remove('hidden');
 }
 
 function nextQuizQuestion() {
@@ -1234,16 +1248,21 @@ function nextQuizQuestion() {
 }
 
 function showQuizResults() {
-    document.getElementById('quizContainer').classList.add('hidden');
-    document.getElementById('quizResults').classList.remove('hidden');
-    document.getElementById('quizFinalScore').textContent = `${quizScore}/${quizQuestions.length}`;
+    const qCont = document.getElementById('quizContainer');
+    const qRes = document.getElementById('quizResults');
+    const qFinalScore = document.getElementById('quizFinalScore');
+    const qScoreMsg = document.getElementById('quizScoreMsg');
+
+    if (qCont) qCont.classList.add('hidden');
+    if (qRes) qRes.classList.remove('hidden');
+    if (qFinalScore) qFinalScore.textContent = `${quizScore}/${quizQuestions.length}`;
 
     const dict = translations[currentLang] || translations.en;
     let msg = dict.quizKeepLearning;
     if (quizScore === quizQuestions.length) msg = dict.quizPerfectScore;
     else if (quizScore >= 2) msg = dict.quizGoodScore;
 
-    document.getElementById('quizScoreMsg').textContent = msg;
+    if (qScoreMsg) qScoreMsg.textContent = msg;
 }
 
 function restartQuiz() {
@@ -1251,24 +1270,25 @@ function restartQuiz() {
 }
 
 // MODAL MANAGEMENT
-function openFavoritesModal() { document.getElementById('favoritesModal').classList.remove('hidden'); }
-function closeFavoritesModal() { document.getElementById('favoritesModal').classList.add('hidden'); }
+function openFavoritesModal() { document.getElementById('favoritesModal')?.classList.remove('hidden'); }
+function closeFavoritesModal() { document.getElementById('favoritesModal')?.classList.add('hidden'); }
 
-function openHistoryModal() { document.getElementById('historyModal').classList.remove('hidden'); }
-function closeHistoryModal() { document.getElementById('historyModal').classList.add('hidden'); }
+function openHistoryModal() { document.getElementById('historyModal')?.classList.remove('hidden'); }
+function closeHistoryModal() { document.getElementById('historyModal')?.classList.add('hidden'); }
 
-function openArchModal() { document.getElementById('archModal').classList.remove('hidden'); }
-function closeArchModal() { document.getElementById('archModal').classList.add('hidden'); }
+function openArchModal() { document.getElementById('archModal')?.classList.remove('hidden'); }
+function closeArchModal() { document.getElementById('archModal')?.classList.add('hidden'); }
 
-function openIsnadModal() { document.getElementById('isnadModal').classList.remove('hidden'); }
-function closeIsnadModal() { document.getElementById('isnadModal').classList.add('hidden'); }
+function openIsnadModal() { document.getElementById('isnadModal')?.classList.remove('hidden'); }
+function closeIsnadModal() { document.getElementById('isnadModal')?.classList.add('hidden'); }
 
 // EXPORT & LEDGER AUDIT LOGGING
 function logAuditEvent(action, detail) {
+    const domainEl = document.getElementById('domainSelect');
     const logEntry = {
         time: new Date().toLocaleTimeString(),
         action: action,
-        domain: document.getElementById('domainSelect')?.value || 'all',
+        domain: domainEl ? domainEl.value : 'all',
         detail: detail,
         hash: '0x' + Math.random().toString(16).substr(2, 8)
     };
@@ -1282,10 +1302,10 @@ function renderAuditHistory() {
     if (!tbody) return;
     const dict = translations[currentLang] || translations.en;
 
-    const totalRetrievedEl = document.getElementById('auditTotalRetrieved');
-    const totalSavedEl = document.getElementById('auditTotalSaved');
-    if (totalRetrievedEl) totalRetrievedEl.textContent = historyLogs.length;
-    if (totalSavedEl) totalSavedEl.textContent = favorites.length;
+    const totalRetrieved = document.getElementById('auditTotalRetrieved');
+    const totalSaved = document.getElementById('auditTotalSaved');
+    if (totalRetrieved) totalRetrieved.textContent = historyLogs.length;
+    if (totalSaved) totalSaved.textContent = favorites.length;
 
     if (historyLogs.length === 0) {
         tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 text-xs">${dict.auditEmpty}</td></tr>`;
@@ -1353,3 +1373,50 @@ function showToast(message) {
         toast.remove();
     }, 3000);
 }
+
+// EXPLICIT GLOBAL BINDINGS TO ENSURE HTML INLINE EVENT HANDLERS ALWAYS CALL WORKABLE FUNCTIONS
+window.openArchModal = openArchModal;
+window.closeArchModal = closeArchModal;
+window.openFavoritesModal = openFavoritesModal;
+window.closeFavoritesModal = closeFavoritesModal;
+window.openHistoryModal = openHistoryModal;
+window.closeHistoryModal = closeHistoryModal;
+window.openQuizModal = openQuizModal;
+window.closeQuizModal = closeQuizModal;
+window.openIsnadModal = openIsnadModal;
+window.closeIsnadModal = closeIsnadModal;
+window.retrieveKnowledgePair = retrieveKnowledgePair;
+window.updateCalligraphyStyle = updateCalligraphyStyle;
+window.filterEra = filterEra;
+window.speakText = speakText;
+window.saveCurrentItem = saveCurrentItem;
+window.removeFavorite = removeFavorite;
+window.clearAllFavorites = clearAllFavorites;
+window.exportFavoritesCSV = exportFavoritesCSV;
+window.exportFavoritesJSON = exportFavoritesJSON;
+window.copySynthesisPrompt = copySynthesisPrompt;
+window.generateNewSynthesisPrompt = generateNewSynthesisPrompt;
+window.selectQuizOption = selectQuizOption;
+window.nextQuizQuestion = nextQuizQuestion;
+window.restartQuiz = restartQuiz;
+window.clearAuditHistory = clearAuditHistory;
+window.printAuditLedger = printAuditLedger;
+
+// INITIALIZE APP UPON DOM READY
+document.addEventListener('DOMContentLoaded', function() {
+    const langSelect = document.getElementById('langSelect');
+    if (langSelect) {
+        langSelect.addEventListener('change', function(e) {
+            currentLang = e.target.value;
+            updateLanguageUI();
+            logAuditEvent("LANG_CHANGE", `Language changed to ${currentLang.toUpperCase()}`);
+        });
+    }
+
+    updateLanguageUI();
+    retrieveKnowledgePair();
+    renderFavoritesList();
+    renderAuditHistory();
+    updateSaveButtonsState();
+    logAuditEvent("SESSION_START", "Application initialized with clean modern UI.");
+});
