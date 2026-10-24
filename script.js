@@ -1,28 +1,30 @@
 // TAILWIND CONFIGURATION
-tailwind.config = {
-    theme: {
-        extend: {
-            fontFamily: {
-                sans: ['Inter', 'sans-serif'],
-                serif: ['Cinzel', 'Georgia', 'serif'],
-                amiri: ['Amiri', 'serif'],
-                scheherazade: ['Scheherazade New', 'serif'],
-                ruqaa: ['Aref Ruqaa', 'serif'],
-            },
-            colors: {
-                brand: {
-                    50: '#f0fdf4',
-                    100: '#dcfce7',
-                    500: '#10b981',
-                    700: '#047857',
-                    800: '#065f46',
-                    900: '#064e3b',
+if (typeof tailwind !== 'undefined') {
+    tailwind.config = {
+        theme: {
+            extend: {
+                fontFamily: {
+                    sans: ['Inter', 'sans-serif'],
+                    serif: ['Cinzel', 'Georgia', 'serif'],
+                    amiri: ['Amiri', 'serif'],
+                    scheherazade: ['Scheherazade New', 'serif'],
+                    ruqaa: ['Aref Ruqaa', 'serif'],
                 },
-                amberGold: '#d97706',
+                colors: {
+                    brand: {
+                        50: '#f0fdf4',
+                        100: '#dcfce7',
+                        500: '#10b981',
+                        700: '#047857',
+                        800: '#065f46',
+                        900: '#064e3b',
+                    },
+                    amberGold: '#d97706',
+                }
             }
         }
-    }
-};
+    };
+}
 
 // TRANSLATION DICTIONARY
 const translations = {
@@ -882,7 +884,7 @@ let historyLogs = JSON.parse(localStorage.getItem('alhikmah_logs') || '[]');
 let quizCurrentIndex = 0;
 let quizScore = 0;
 
-// INITIALIZATION & EVENT LISTENERS
+// INITIALIZATION & EVENT ATTACHMENTS
 document.addEventListener('DOMContentLoaded', function() {
     const langSelect = document.getElementById('langSelect');
     if (langSelect) {
@@ -892,16 +894,14 @@ document.addEventListener('DOMContentLoaded', function() {
             logAuditEvent("LANG_CHANGE", `Language changed to ${currentLang.toUpperCase()}`);
         });
     }
-});
 
-window.onload = function() {
     updateLanguageUI();
     retrieveKnowledgePair();
     renderFavoritesList();
     renderAuditHistory();
     updateSaveButtonsState();
     logAuditEvent("SESSION_START", "Application initialized with clean modern UI.");
-};
+});
 
 // LANGUAGE SWITCHER
 function updateLanguageUI() {
@@ -957,7 +957,8 @@ function filterEra(era, btn) {
 
 // KNOWLEDGE RETRIEVAL ENGINE
 function retrieveKnowledgePair() {
-    const selectedDomain = document.getElementById('domainSelect').value;
+    const domainSelectEl = document.getElementById('domainSelect');
+    const selectedDomain = domainSelectEl ? domainSelectEl.value : 'all';
     
     // Filter database by selected domain and era
     let filtered = knowledgeDatabase.filter(item => {
@@ -1281,8 +1282,10 @@ function renderAuditHistory() {
     if (!tbody) return;
     const dict = translations[currentLang] || translations.en;
 
-    document.getElementById('auditTotalRetrieved').textContent = historyLogs.length;
-    document.getElementById('auditTotalSaved').textContent = favorites.length;
+    const totalRetrievedEl = document.getElementById('auditTotalRetrieved');
+    const totalSavedEl = document.getElementById('auditTotalSaved');
+    if (totalRetrievedEl) totalRetrievedEl.textContent = historyLogs.length;
+    if (totalSavedEl) totalSavedEl.textContent = favorites.length;
 
     if (historyLogs.length === 0) {
         tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 text-xs">${dict.auditEmpty}</td></tr>`;
@@ -1341,6 +1344,7 @@ function exportFavoritesJSON() {
 // UTILITY TOAST NOTIFICATION
 function showToast(message) {
     const container = document.getElementById('toastContainer');
+    if (!container) return;
     const toast = document.createElement('div');
     toast.className = 'bg-slate-900 text-white text-xs px-4 py-3 rounded-xl shadow-lg border border-slate-700 animate-toast flex items-center gap-2 pointer-events-auto';
     toast.innerHTML = `<i class="fa-solid fa-circle-info text-emerald-400"></i> <span>${message}</span>`;
